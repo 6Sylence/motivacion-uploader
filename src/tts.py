@@ -56,8 +56,8 @@ def _probe_duration(path: Path) -> float:
         return 0.0
 
 
-def narrate(text: str, out_dir: str | Path, rate: str = "-4%",
-            pitch: str = "-2Hz") -> tuple[Path, list[dict], float]:
+def narrate(text: str, out_dir: str | Path, rate: str = "-7%",
+            pitch: str = "-9Hz") -> tuple[Path, list[dict], float]:
     """Render ``text`` to ``out_dir/narration.mp3``.
 
     Returns ``(mp3_path, words, duration_seconds)`` where ``words`` is a list of

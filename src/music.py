@@ -42,33 +42,43 @@ def _pad(freq: float, seconds: float, detune: float = 0.0) -> np.ndarray:
 
 
 def build_bed(seconds: float, out_path: str | Path, seed: int = 0) -> Path:
-    """Render a seamless cinematic music bed of ``seconds`` to ``out_path`` (WAV)."""
-    rng = np.random.default_rng(seed)
+    """Render a seamless DARK, DRIVING cinematic bed of ``seconds`` to WAV.
+
+    Deep minor drone + a pumping heartbeat/kick pulse + a rhythmic gate that
+    makes the whole bed drive, plus a slow rising tension sweep. Epic and
+    intense (modo-lobo / sigma edit vibe), not ambient."""
     root = ROOTS[seed % len(ROOTS)]
     n = int(SR * seconds)
+    t = np.arange(n) / SR
 
     mix = np.zeros(n)
-    # sustained chord: root, fifth, octave, plus a high shimmer
-    voices = [(root, 0.5, 0.004), (root * 1.5, 0.35, -0.004),
-              (root * 2, 0.3, 0.006), (root * 3, 0.12, 0.0)]
+    # dark sustained chord: root, octave, fifth, plus body
+    voices = [(root, 0.5, 0.004), (root * 2, 0.30, -0.004),
+              (root * 3, 0.18, 0.006), (root * 1.5, 0.22, 0.0)]
     for freq, amp, det in voices:
-        v = _pad(freq, seconds, det)
-        mix += amp * v
+        mix += amp * _pad(freq, seconds, det)
 
-    # slow sub pulse ~ every 2 s to give a heartbeat / drive
-    pulse_period = 2.0
-    t = np.arange(n) / SR
-    pulse_env = 0.5 * (1 + np.sin(2 * np.pi * (1 / pulse_period) * t - np.pi / 2))
-    sub = np.sin(2 * np.pi * root * 0.5 * t) * (pulse_env ** 3) * 0.35
-    mix += sub
+    # driving heartbeat/kick pulse (~88 BPM), phase-locked so it loops
+    bpm = 88.0
+    beat = 60.0 / bpm
+    pulse = 0.5 * (1 + np.sin(2 * np.pi * (1 / beat) * t - np.pi / 2))
+    sub = np.sin(2 * np.pi * root * 0.5 * t) * (pulse ** 4) * 0.5   # deep kick
+    tick = np.sin(2 * np.pi * root * t) * (pulse ** 8) * 0.12        # attack tick
+    mix += sub + tick
 
-    # gentle overall swell (fade in / out) so it loops and breathes
-    mix *= _adsr(n, attack=2.0, release=3.0)
+    # rhythmic gate: the whole bed pumps to the beat (sidechain-style drive)
+    mix *= 0.60 + 0.40 * (pulse ** 2)
 
-    # soft saturation + normalize
-    mix = np.tanh(mix * 0.8)
+    # slow rising tension building across the track
+    mix += np.sin(2 * np.pi * root * 3 * t) * 0.05 * np.clip(t / max(seconds, 1), 0, 1)
+
+    # overall swell so it breathes and loops cleanly
+    mix *= _adsr(n, attack=1.6, release=2.6)
+
+    # drive into soft saturation + normalize
+    mix = np.tanh(mix * 1.0)
     peak = float(np.max(np.abs(mix))) or 1.0
-    mix = (mix / peak) * 0.9
+    mix = (mix / peak) * 0.92
 
     out = Path(out_path)
     data = (mix * 32767).astype("<i2")

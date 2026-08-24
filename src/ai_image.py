@@ -26,39 +26,42 @@ from pathlib import Path
 MODEL = "@cf/black-forest-labs/flux-1-schnell"
 API_URL = "https://api.cloudflare.com/client/v4/accounts/{acct}/ai/run/{model}"
 
-# Interchangeable cinematic scenes. We rotate through them (offset by seed) so a
-# video's slides are varied and consecutive uploads differ. All are unbranded,
-# text-free, wide 16:9, monetization-safe.
+# Dark, gritty, high-intensity "sigma / modo lobo" scenes — the aesthetic of
+# viral motivation edits (modolobo, modocueva): lone wolves, lions, stoic marble
+# statues, storms, fire, solitary warriors. Rotated (offset by seed) so slides
+# vary and consecutive uploads differ. All unbranded, text-free, 16:9, safe.
 SCENES = [
-    "a lone silhouetted man standing on a mountain summit at sunrise, arms ready, "
-    "vast valley of clouds below, god rays",
-    "a determined athlete running up endless stadium stairs at dawn, dramatic "
-    "backlight, sweat and steam, low angle",
-    "a solitary figure walking a foggy road toward a bright horizon, long shadows, "
-    "cinematic teal and orange",
-    "a boxer wrapping his hands alone in a dark gym, single hard light beam, dust "
-    "in the air, moody and intense",
-    "a climber gripping a cliff edge high above the clouds at golden hour, "
-    "epic scale, vertigo",
-    "a person meditating on a rock before a stormy ocean, waves crashing, powerful "
-    "and calm, dramatic sky",
-    "a runner's silhouette against a huge rising sun on an empty desert highway, "
-    "heat haze, vast and lonely",
-    "a lone wolf on a snowy ridge under the northern lights, cold blue tones, "
-    "majestic and solitary",
-    "an eagle soaring over jagged mountain peaks at sunrise, sense of freedom and "
-    "power, cinematic wide shot",
-    "a man doing pushups alone in an empty warehouse at night, single overhead "
-    "light, gritty determination",
-    "a candlelit desk with an open notebook and coffee before dawn, warm focused "
-    "glow, quiet discipline",
-    "a hiker reaching a peak and raising a fist against a dramatic cloudy sunset, "
-    "triumphant silhouette",
+    "a massive lone black wolf staring straight at the camera in dark misty forest, "
+    "piercing eyes, moonlight rimlight, breath fog, menacing and majestic",
+    "a powerful male lion in profile emerging from deep shadow, single hard "
+    "light on the mane, black background, intense and regal",
+    "a weathered ancient Greek marble statue of a stoic philosopher, dramatic "
+    "chiaroscuro side light, deep black background, cracked stone, timeless",
+    "a lone hooded man walking away through torrential rain on an empty dark city "
+    "street at night, wet reflections, single street lamp, cinematic and somber",
+    "a shirtless boxer alone in a pitch-black gym under one harsh overhead light, "
+    "sweat and steam, chalk dust, gritty determination, heavy shadows",
+    "a solitary warrior silhouette on a cliff against a violent lightning storm, "
+    "wind and rain, epic dramatic sky, tiny against the chaos",
+    "close-up of glowing embers and fire sparks rising in total darkness, intense "
+    "orange glow, cinematic and moody",
+    "a lone wolf on a snowy ridge under a cold stormy sky, desaturated blue tones, "
+    "solitary and unbreakable",
+    "a man doing pushups alone in a dark concrete room, one shaft of hard light "
+    "through a window, dust in the air, raw and gritty",
+    "an eagle diving through storm clouds over black jagged mountains, dramatic "
+    "and powerful, high contrast",
+    "a lone figure climbing a steep dark mountain in fog at dawn, exhausted but "
+    "relentless, moody desaturated cinematic grade",
+    "a clenched fist raised against a dark dramatic sky with a single beam of "
+    "light breaking through storm clouds, triumphant and intense",
 ]
 
-_COMMON = ("Ultra high detail, cinematic dramatic lighting, bold high contrast, "
-           "photorealistic, epic and inspiring, no text, no watermark, no logos, "
-           "unbranded, 16:9 wide cinematic composition.")
+_COMMON = ("Dark moody cinematic still, very high contrast, deep crushed blacks, "
+           "dramatic single-source lighting, desaturated with a subtle warm or "
+           "teal accent, fine film grain, gritty and epic, powerful sigma "
+           "motivation aesthetic, photorealistic, no text, no watermark, "
+           "no logos, unbranded, 16:9 wide cinematic composition.")
 
 
 class AIImageError(RuntimeError):

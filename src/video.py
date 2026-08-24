@@ -102,7 +102,8 @@ def _kenburns_clip(image: Path, seconds: float, index: int, out: Path) -> None:
         f"crop=2560:1440,"
         f"zoompan=z='{zexpr}':d={frames}"
         f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H}:fps={FPS},"
-        f"eq=contrast=1.06:saturation=1.12:brightness=-0.02,"
+        f"eq=contrast=1.18:saturation=0.80:brightness=-0.04:gamma=0.94,"
+        f"vignette=PI/4.2,"
         f"setsar=1,format=yuv420p"
     )
     _run(["ffmpeg", "-y", "-loop", "1", "-i", str(image),
@@ -168,10 +169,13 @@ def compose(concat_video: Path, ass_file: Path, narration: Path, music: Path,
         f"drawtext=fontfile='{font_esc}':text='{brand}':"
         f"fontcolor=white@0.90:fontsize=46:x=(w-text_w)/2:y=h-96:"
         f"box=1:boxcolor=black@0.40:boxborderw=20[v];"
-        f"[2:a]volume=0.26,apad[bed];"
-        f"[1:a]volume=1.6,apad,asplit=2[voicekey][voicemix];"
-        f"[bed][voicekey]sidechaincompress=threshold=0.03:ratio=9:attack=5:"
-        f"release=320:makeup=1[bedduck];"
+        f"[2:a]volume=0.34,apad[bed];"
+        f"[1:a]acompressor=threshold=-18dB:ratio=4:attack=6:release=140,"
+        f"equalizer=f=110:t=q:w=1.2:g=4,equalizer=f=320:t=q:w=1.5:g=-2,"
+        f"volume=1.8,aecho=0.85:0.9:55:0.22,"
+        f"apad,asplit=2[voicekey][voicemix];"
+        f"[bed][voicekey]sidechaincompress=threshold=0.03:ratio=10:attack=5:"
+        f"release=300:makeup=1[bedduck];"
         f"[voicemix][bedduck]amix=inputs=2:duration=longest:normalize=0[a]"
     )
     _run(["ffmpeg", "-y",
