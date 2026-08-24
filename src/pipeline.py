@@ -14,7 +14,7 @@ import hashlib
 import os
 from pathlib import Path
 
-from . import ai_image, metadata, music, scripts, tts, video
+from . import ai_image, ai_voice, metadata, music, scripts, tts, video
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -65,8 +65,17 @@ def main(argv=None) -> int:
             body += "."
     print(f"[1/5] script: '{title_theme}' ({len(body.split())} words)")
 
-    # 2. Narration (edge-tts) ----------------------------------------------
-    narration, words, dur = tts.narrate(body, work)
+    # 2. Narration — ElevenLabs (emotional) if configured, else edge-tts -----
+    voice_engine = "edge-tts"
+    if ai_voice.available():
+        try:
+            narration, words, dur = ai_voice.narrate(body, work)
+            voice_engine = "elevenlabs"
+        except ai_voice.AIVoiceError as exc:
+            print(f"    [voice] ElevenLabs failed ({exc}); falling back to edge-tts")
+            narration, words, dur = tts.narrate(body, work)
+    else:
+        narration, words, dur = tts.narrate(body, work)
     if words:
         cues = tts.group_captions(words)
         cap_src = "word-synced"
@@ -74,7 +83,8 @@ def main(argv=None) -> int:
         cues = tts.captions_from_text(body, dur)
         cap_src = "even-timed (no word events)"
     total = max(dur + 1.5, 8.0)
-    print(f"[2/5] narration: {dur:.1f}s, {len(cues)} caption cues [{cap_src}]")
+    print(f"[2/5] narration ({voice_engine}): {dur:.1f}s, "
+          f"{len(cues)} caption cues [{cap_src}]")
 
     # 3. Cinematic images (Cloudflare FLUX, best-effort) -------------------
     n_slides = max(3, args.slides)

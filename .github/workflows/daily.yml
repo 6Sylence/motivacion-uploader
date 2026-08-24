@@ -46,6 +46,12 @@ jobs:
           CHANNEL_NAME: ${{ secrets.CHANNEL_NAME }}
           VOICE: ${{ secrets.VOICE }}
           AFFILIATE_BLOCK: ${{ secrets.AFFILIATE_BLOCK }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVEN_VOICE_ID: ${{ secrets.ELEVEN_VOICE_ID }}
+          ELEVEN_VOICE_NAME: ${{ secrets.ELEVEN_VOICE_NAME }}
+          ELEVEN_STABILITY: ${{ secrets.ELEVEN_STABILITY }}
+          ELEVEN_STYLE: ${{ secrets.ELEVEN_STYLE }}
+          ELEVEN_SIMILARITY: ${{ secrets.ELEVEN_SIMILARITY }}
           PRIVACY: ${{ github.event.inputs.privacy || 'public' }}
           MAX_SECONDS: ${{ github.event.inputs.max_seconds || '0' }}
           SLOT: "0"
