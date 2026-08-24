@@ -1,0 +1,46 @@
+name: CI smoke test
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  render-no-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Render a short video (no upload)
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CHANNEL_NAME: ${{ secrets.CHANNEL_NAME }}
+          VOICE: ${{ secrets.VOICE }}
+          NO_UPLOAD: "1"
+          MAX_SECONDS: "18"
+          SLIDES: "3"
+        run: python -m src.pipeline --no-upload
+
+      - name: Upload preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-preview
+          path: |
+            out/video.mp4
+            out/thumb.jpg
+          if-no-files-found: ignore
+          retention-days: 5
