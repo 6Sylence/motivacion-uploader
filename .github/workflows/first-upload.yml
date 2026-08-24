@@ -2,6 +2,7 @@ name: Test upload (unlisted)
 
 # One-off: renders a full real video and uploads it UNLISTED to the channel so
 # it can be reviewed before going public. Removed after it has run once.
+# rev: MENTE SIGMA preview
 on:
   workflow_dispatch:
   push:

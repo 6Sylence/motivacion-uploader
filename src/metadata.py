@@ -11,7 +11,7 @@ from __future__ import annotations
 import datetime as _dt
 import os
 
-CHANNEL_NAME = os.environ.get("CHANNEL_NAME", "").strip() or "MENTE DE LOBO"
+CHANNEL_NAME = os.environ.get("CHANNEL_NAME", "").strip() or "MENTE SIGMA"
 
 # Headline hooks prepended/appended to the theme title for variety + SEO.
 HOOKS = [
