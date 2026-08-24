@@ -1,0 +1,41 @@
+name: Verify YouTube credentials
+
+# Temporary check: confirms the OAuth secrets refresh AND reports which channel
+# they control (should be the keepout301 channel), without uploading anything.
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/ambient-youtube-automation-r5x2ec]
+
+jobs:
+  whoami:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install auth deps
+        run: pip install google-api-python-client google-auth google-auth-httplib2 google-auth-oauthlib
+      - name: Who am I
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          python - <<'PY'
+          from src.upload_youtube import verify_credentials, _service
+          verify_credentials()
+          yt = _service()
+          r = yt.channels().list(part="snippet,statistics", mine=True).execute()
+          items = r.get("items", [])
+          if not items:
+              raise SystemExit("Token valid but controls NO channel (wrong account?)")
+          ch = items[0]
+          print("✅ Credentials OK")
+          print("Channel title :", ch["snippet"]["title"])
+          print("Channel id    :", ch["id"])
+          print("Subscribers   :", ch["statistics"].get("subscriberCount"))
+          print("Videos        :", ch["statistics"].get("videoCount"))
+          PY
