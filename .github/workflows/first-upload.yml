@@ -1,0 +1,49 @@
+name: First test upload (unlisted)
+
+# One-off: renders a full real video and uploads it UNLISTED to the channel so
+# it can be reviewed before going public. Removed after it has run once.
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/ambient-youtube-automation-r5x2ec]
+    paths: [".github/workflows/first-upload.yml"]
+
+concurrency:
+  group: first-upload
+  cancel-in-progress: false
+
+jobs:
+  render-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Render & upload (unlisted)
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CHANNEL_NAME: ${{ secrets.CHANNEL_NAME }}
+          VOICE: ${{ secrets.VOICE }}
+          PRIVACY: unlisted
+        run: python -m src.pipeline --privacy unlisted
+      - name: Upload preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-upload-out
+          path: |
+            out/video.mp4
+            out/thumb.jpg
+          if-no-files-found: ignore
+          retention-days: 7
