@@ -253,13 +253,13 @@ def build_thumbnail(title: str, base_slide: Path | None, channel_name: str,
         except Exception:
             return ImageFont.load_default()
 
-    words = title.upper().split()
-    headline = " ".join(words[:3]) if len(words) > 3 else title.upper()
+    headline = title.upper()
     big = font(150)
-    lines = _wrap(draw, headline, big, 1180)
-    if len(lines) > 2:  # shrink until it fits two lines
-        big = font(110)
+    for sz in (150, 130, 112, 96, 82):  # shrink until the whole phrase fits 3 lines
+        big = font(sz)
         lines = _wrap(draw, headline, big, 1180)
+        if len(lines) <= 3:
+            break
 
     total_h = sum(big.getbbox(l)[3] - big.getbbox(l)[1] + 16 for l in lines)
     y = 700 - total_h - 70
