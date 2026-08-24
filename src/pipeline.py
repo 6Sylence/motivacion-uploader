@@ -67,9 +67,14 @@ def main(argv=None) -> int:
 
     # 2. Narration (edge-tts) ----------------------------------------------
     narration, words, dur = tts.narrate(body, work)
-    cues = tts.group_captions(words)
+    if words:
+        cues = tts.group_captions(words)
+        cap_src = "word-synced"
+    else:
+        cues = tts.captions_from_text(body, dur)
+        cap_src = "even-timed (no word events)"
     total = max(dur + 1.5, 8.0)
-    print(f"[2/5] narration: {dur:.1f}s, {len(cues)} caption cues")
+    print(f"[2/5] narration: {dur:.1f}s, {len(cues)} caption cues [{cap_src}]")
 
     # 3. Cinematic images (Cloudflare FLUX, best-effort) -------------------
     n_slides = max(3, args.slides)
